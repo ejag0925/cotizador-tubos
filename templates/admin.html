@@ -1,0 +1,176 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <div class="card border-0 shadow-sm mb-4">
+            <div class="card-header bg-primary text-white">
+                <h3 class="mb-0"><i class="bi bi-gear"></i> Panel de Administración</h3>
+            </div>
+            <div class="card-body">
+                <p class="text-muted">Los datos se actualizan directamente en Google Sheets. Esta es una vista de solo lectura.</p>
+                
+                <ul class="nav nav-tabs mb-4" id="adminTabs" role="tablist">
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link active" id="materiales-tab" data-bs-toggle="tab" data-bs-target="#materiales" type="button">Materiales</button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="estampacion-tab" data-bs-toggle="tab" data-bs-target="#estampacion" type="button">Estampación</button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="componentes-tab" data-bs-toggle="tab" data-bs-target="#componentes" type="button">Componentes</button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="costos-tab" data-bs-toggle="tab" data-bs-target="#costos" type="button">Costos Indirectos</button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="parametros-tab" data-bs-toggle="tab" data-bs-target="#parametros" type="button">Parámetros</button>
+                    </li>
+                </ul>
+                
+                <div class="tab-content" id="adminTabsContent">
+                    <!-- Tab Materiales -->
+                    <div class="tab-pane fade show active" id="materiales" role="tabpanel">
+                        <div class="table-responsive">
+                            <table class="table table-sm table-striped">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Tipo</th>
+                                        <th>Ancho (mm)</th>
+                                        <th>Diámetros Asociados</th>
+                                        <th>Repeticiones</th>
+                                        <th>Costo FOB ($/m²)</th>
+                                        <th>Factor Importación (%)</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for item in materiales %}
+                                    <tr>
+                                        <td>{{ item['Tipo'] }}</td>
+                                        <td>{{ item['Ancho (mm)'] }}</td>
+                                        <td>{{ item['Diámetros Asociados'] }}</td>
+                                        <td>{{ item['Repeticiones'] }}</td>
+                                        <td>${{ "%.4f"|format(item['Costo FOB ($/m²)']) }}</td>
+                                        <td>{{ item['Factor Importación (%)'] }}%</td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    
+                    <!-- Tab Estampación -->
+                    <div class="tab-pane fade" id="estampacion" role="tabpanel">
+                        <div class="table-responsive">
+                            <table class="table table-sm table-striped">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Diámetro (mm)</th>
+                                        <th>Escala Mínima</th>
+                                        <th>Escala Máxima</th>
+                                        <th>Costo por m² (COP)</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for item in estampacion %}
+                                    <tr>
+                                        <td>{{ item['Diámetro (mm)'] }}</td>
+                                        <td>{{ "{:,.0f}".format(item['Escala Mínima']) }}</td>
+                                        <td>{{ "{:,.0f}".format(item['Escala Máxima']) }}</td>
+                                        <td>${{ "{:,.2f}".format(item['Costo por m² (COP)']) }}</td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    
+                    <!-- Tab Componentes -->
+                    <div class="tab-pane fade" id="componentes" role="tabpanel">
+                        <div class="table-responsive">
+                            <table class="table table-sm table-striped">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Tipo</th>
+                                        <th>Diámetro (mm)</th>
+                                        <th>Costo Unitario (COP)</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for item in componentes %}
+                                    <tr>
+                                        <td>{{ 'Hombro' if item['Tipo'] == 'hombro' else ('Flip-top' if item['Tipo'] == 'tapa_fliptop' else 'Cónica') }}</td>
+                                        <td>{{ item['Diámetro (mm)'] }}</td>
+                                        <td>${{ "{:,.2f}".format(item['Costo Unitario (COP)']) }}</td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    
+                    <!-- Tab Costos Indirectos -->
+                    <div class="tab-pane fade" id="costos" role="tabpanel">
+                        <div class="table-responsive">
+                            <table class="table table-sm table-striped">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Escala Mínima</th>
+                                        <th>Escala Máxima</th>
+                                        <th>MOD Unitario (COP)</th>
+                                        <th>CIF Unitario (COP)</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for item in costos_indirectos %}
+                                    <tr>
+                                        <td>{{ "{:,.0f}".format(item['Escala Mínima']) }}</td>
+                                        <td>{{ "{:,.0f}".format(item['Escala Máxima']) }}</td>
+                                        <td>${{ "{:,.2f}".format(item['MOD Unitario (COP)']) }}</td>
+                                        <td>${{ "{:,.2f}".format(item['CIF Unitario (COP)']) }}</td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    
+                    <!-- Tab Parámetros -->
+                    <div class="tab-pane fade" id="parametros" role="tabpanel">
+                        <div class="table-responsive">
+                            <table class="table table-sm table-striped">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Parámetro</th>
+                                        <th>Valor</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for key, value in parametros.items() %}
+                                    <tr>
+                                        <td>{{ key }}</td>
+                                        <td>
+                                            {% if key == 'TRM' %}
+                                                ${{ "{:,.2f}".format(value) }}
+                                            {% elif key.endswith('(%)') %}
+                                                {{ value }}%
+                                            {% else %}
+                                                {{ value }}
+                                            {% endif %}
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="alert alert-info mt-4">
+                    <i class="bi bi-info-circle"></i> Para actualizar estos datos, modifique directamente la hoja de cálculo de Google asociada.
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
