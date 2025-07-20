@@ -50,39 +50,39 @@
                         <table class="table table-sm">
                             <tr>
                                 <th>Materia prima (USD):</th>
-                                <td>$ {{ "%.4f".format(resultado.costos.materia_prima_usd) }} USD</td>
+                                <td>$ {{ "%.4f"|format(resultado.costos.materia_prima_usd) }} USD</td>
                             </tr>
                             <tr>
                                 <th>Materia prima (COP):</th>
-                                <td>$ {{ "%.2f".format(resultado.costos.materia_prima_cop) }} COP</td>
+                                <td>$ {{ "%.2f"|format(resultado.costos.materia_prima_cop) }} COP</td>
                             </tr>
                             <tr>
                                 <th>Estampación:</th>
-                                <td>$ {{ "%.2f".format(resultado.costos.estampacion_cop) }} COP</td>
+                                <td>$ {{ "%.2f"|format(resultado.costos.estampacion_cop) }} COP</td>
                             </tr>
                             <tr>
                                 <th>Hombro:</th>
-                                <td>$ {{ "%.2f".format(resultado.costos.hombro_cop) }} COP</td>
+                                <td>$ {{ "%.2f"|format(resultado.costos.hombro_cop) }} COP</td>
                             </tr>
                             <tr>
                                 <th>Tapa:</th>
-                                <td>$ {{ "%.2f".format(resultado.costos.tapa_cop) }} COP</td>
+                                <td>$ {{ "%.2f"|format(resultado.costos.tapa_cop) }} COP</td>
                             </tr>
                             <tr class="table-light">
                                 <th>MOD Unitario:</th>
-                                <td>$ {{ "%.2f".format(resultado.costos.mod_cop) }} COP</td>
+                                <td>$ {{ "%.2f"|format(resultado.costos.mod_cop) }} COP</td>
                             </tr>
                             <tr class="table-light">
                                 <th>CIF Unitario:</th>
-                                <td>$ {{ "%.2f".format(resultado.costos.cif_cop) }} COP</td>
+                                <td>$ {{ "%.2f"|format(resultado.costos.cif_cop) }} COP</td>
                             </tr>
                             <tr class="table-primary fw-bold">
                                 <th>COSTO UNITARIO TOTAL:</th>
-                                <td>$ {{ "%.2f".format(resultado.costos.total_cop) }} COP</td>
+                                <td>$ {{ "%.2f"|format(resultado.costos.total_cop) }} COP</td>
                             </tr>
                             <tr class="table-success fw-bold">
                                 <th>PRECIO DE VENTA UNITARIO ({{ (resultado.datos.margen * 100)|round(1) }}% margen):</th>
-                                <td>$ {{ "%.2f".format(resultado.costos.precio_venta_cop) }} COP</td>
+                                <td>$ {{ "%.2f"|format(resultado.costos.precio_venta_cop) }} COP</td>
                             </tr>
                         </table>
                     </div>
