@@ -1,7 +1,12 @@
-venv/
+.env
 __pycache__/
 *.pyc
-.env
+*.pyo
+*.pyd
+.Python
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
 credentials.json
-*.swp
-.DS_Store
