@@ -1,0 +1,186 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-10">
+        <div class="card border-0 shadow-sm mt-4">
+            <div class="card-header bg-primary text-white">
+                <h3 class="mb-0"><i class="bi bi-file-earmark-text"></i> Cotización Unitario</h3>
+            </div>
+            
+            <div class="card-body">
+                <!-- Sección de Resumen -->
+                <div class="card cost-card mb-4">
+                    <div class="card-body">
+                        <h5 class="card-title">Especificaciones</h5>
+                        <table class="table table-sm">
+                            <tr>
+                                <th>Diámetro:</th>
+                                <td>{{ resultado.datos.diametro }} mm</td>
+                            </tr>
+                            <tr>
+                                <th>Largo:</th>
+                                <td>{{ resultado.datos.largo }} mm</td>
+                            </tr>
+                            <tr>
+                                <th>Tipo tapa:</th>
+                                <td>{{ 'Flip-top' if resultado.datos.tipo_tapa == 'tapa_fliptop' else 'Cónica' }}</td>
+                            </tr>
+                            <tr>
+                                <th>Escala de producción:</th>
+                                <td>{{ "{:,.0f}".format(resultado.datos.escala) }} unidades</td>
+                            </tr>
+                            <tr>
+                                <th>Rollo utilizado:</th>
+                                <td>{{ resultado.material['Tipo'] }} {{ resultado.material['Ancho (mm)'] }}mm
+                                    ({{ resultado.material['Repeticiones'] }} repeticiones)</td>
+                            </tr>
+                            <tr>
+                                <th>Área por tubo:</th>
+                                <td>{{ "%.6f"|format(resultado.produccion.area_por_tubo_m2) }} m²</td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+                
+                <!-- Sección de Costos Unitarios -->
+                <div class="card cost-card mb-4">
+                    <div class="card-body">
+                        <h5 class="card-title">Desglose de Costos Unitarios</h5>
+                        <table class="table table-sm">
+                            <tr>
+                                <th>Materia prima (USD):</th>
+                                <td>$ {{ "%.4f".format(resultado.costos.materia_prima_usd) }} USD</td>
+                            </tr>
+                            <tr>
+                                <th>Materia prima (COP):</th>
+                                <td>$ {{ "%.2f".format(resultado.costos.materia_prima_cop) }} COP</td>
+                            </tr>
+                            <tr>
+                                <th>Estampación:</th>
+                                <td>$ {{ "%.2f".format(resultado.costos.estampacion_cop) }} COP</td>
+                            </tr>
+                            <tr>
+                                <th>Hombro:</th>
+                                <td>$ {{ "%.2f".format(resultado.costos.hombro_cop) }} COP</td>
+                            </tr>
+                            <tr>
+                                <th>Tapa:</th>
+                                <td>$ {{ "%.2f".format(resultado.costos.tapa_cop) }} COP</td>
+                            </tr>
+                            <tr class="table-light">
+                                <th>MOD Unitario:</th>
+                                <td>$ {{ "%.2f".format(resultado.costos.mod_cop) }} COP</td>
+                            </tr>
+                            <tr class="table-light">
+                                <th>CIF Unitario:</th>
+                                <td>$ {{ "%.2f".format(resultado.costos.cif_cop) }} COP</td>
+                            </tr>
+                            <tr class="table-primary fw-bold">
+                                <th>COSTO UNITARIO TOTAL:</th>
+                                <td>$ {{ "%.2f".format(resultado.costos.total_cop) }} COP</td>
+                            </tr>
+                            <tr class="table-success fw-bold">
+                                <th>PRECIO DE VENTA UNITARIO ({{ (resultado.datos.margen * 100)|round(1) }}% margen):</th>
+                                <td>$ {{ "%.2f".format(resultado.costos.precio_venta_cop) }} COP</td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+                
+                <!-- Sección de Producción -->
+                <div class="card production-card">
+                    <div class="card-body">
+                        <h5 class="card-title">Información de Producción</h5>
+                        <table class="table table-sm">
+                            <tr>
+                                <th>Rollos necesarios:</th>
+                                <td>{{ resultado.produccion.rollos_necesarios }}</td>
+                            </tr>
+                            <tr>
+                                <th>Metros por rollo:</th>
+                                <td>{{ resultado.produccion.metros_por_rollo }} m</td>
+                            </tr>
+                            <tr>
+                                <th>Desperdicio primer rollo:</th>
+                                <td>{{ resultado.produccion.desperdicio_primer_rollo }}%</td>
+                            </tr>
+                            <tr>
+                                <th>Desperdicio rollos siguientes:</th>
+                                <td>{{ resultado.produccion.desperdicio_rollos_siguientes }}%</td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+                
+                <!-- Gráfico y acciones -->
+                <div class="row mt-4">
+                    <div class="col-md-6">
+                        <div class="chart-container">
+                            <canvas id="costChart"></canvas>
+                        </div>
+                    </div>
+                    <div class="col-md-6 d-flex align-items-center justify-content-center">
+                        <div class="text-center">
+                            <a href="{{ url_for('index') }}" class="btn btn-outline-primary me-2">
+                                <i class="bi bi-arrow-left"></i> Nueva Cotización
+                            </a>
+                            <button class="btn btn-primary" onclick="window.print()">
+                                <i class="bi bi-printer"></i> Imprimir
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const ctx = document.getElementById('costChart').getContext('2d');
+        const chart = new Chart(ctx, {
+            type: 'doughnut',
+            data: {
+                labels: ['Materiales', 'Estampación', 'Hombro', 'Tapa', 'MOD', 'CIF'],
+                datasets: [{
+                    data: [
+                        {{ resultado.costos.materia_prima_cop }},
+                        {{ resultado.costos.estampacion_cop }},
+                        {{ resultado.costos.hombro_cop }},
+                        {{ resultado.costos.tapa_cop }},
+                        {{ resultado.costos.mod_cop }},
+                        {{ resultado.costos.cif_cop }}
+                    ],
+                    backgroundColor: [
+                        '#36a2eb',
+                        '#4bc0c0',
+                        '#ffce56',
+                        '#ff9f40',
+                        '#ff6384',
+                        '#9966ff'
+                    ],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                return `${context.label}: $${context.raw.toFixed(2)} COP`;
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    });
+</script>
+{% endblock %}
